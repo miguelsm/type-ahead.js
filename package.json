@@ -4,7 +4,7 @@
   "description": "A lightweight and extensible type ahead library",
   "main": "src/type-ahead.js",
   "scripts": {
-    "build":"browserify src/type-ahead.js -s TypeAhead -o type-ahead.js && uglifyjs type-ahead.js -o type-ahead.min.js"
+    "build": "browserify src/type-ahead.js -s TypeAhead -o type-ahead.js && uglifyjs type-ahead.js -o type-ahead.min.js"
   },
   "repository": {
     "type": "git",
@@ -50,5 +50,8 @@
   "devDependencies": {
     "browserify": "^11.0.1",
     "uglify-js": "^2.4.24"
+  },
+  "dependencies": {
+    "incremental-dom": "^0.2.0"
   }
 }
