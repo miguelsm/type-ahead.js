@@ -290,11 +290,6 @@ TypeAheadList.prototype.isEmpty = function () {
  * Renders the list
  */
 TypeAheadList.prototype.draw = function () {
-    if (this.items.length === 0) {
-        this.hide();
-        return;
-    }
-
     var typeAheadList = this;
     patch(this.element, function () {
         for (var i = 0; i < typeAheadList.items.length; i++) {
@@ -306,7 +301,11 @@ TypeAheadList.prototype.draw = function () {
         this.scroll();
     }
 
-    this.show();
+    if (this.items.length === 0) {
+        this.hide();
+    } else {
+        this.show();
+    }
 };
 
 /**
