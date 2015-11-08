@@ -1,3 +1,10 @@
+var IncrementalDOM = require('incremental-dom');
+
+var elementClose = IncrementalDOM.elementClose,
+    elementOpen = IncrementalDOM.elementOpen,
+    patch = IncrementalDOM.patch,
+    text = IncrementalDOM.text;
+
 /**
  * TypeAhead
  *
@@ -30,8 +37,6 @@ var TypeAhead = function (element, candidates, opts) {
     typeAhead.query = '';
 
     typeAhead.selected = null;
-
-    typeAhead.list.draw();
 
     typeAhead.element.addEventListener('keyup', function (event) {
         typeAhead.handleKeyUp.call(typeAhead, event.keyCode);
@@ -206,10 +211,17 @@ TypeAhead.prototype.getItemValue = function (item) {
  * @return {string}
  */
 TypeAhead.prototype.highlight = function (item) {
-    var regExp = new RegExp((this.fulltext ? '' : '^') + '(' + this.query + ')', 'ig');
-    return this.getItemValue(item).replace(regExp, function ($1, match) {
-        return '<strong>' + match + '</strong>';
-    });
+    var regex = new RegExp('(' + this.query + ')', 'gi');
+    var split = this.getItemValue(item).split(regex);
+    for (var i = 0, l = split.length; i < l; i++) {
+        if (i % 2 === 1) {
+            elementOpen('strong');
+            text(split[i]);
+            elementClose('strong');
+        } else {
+            text(split[i]);
+        }
+    }
 };
 
 /**
@@ -278,16 +290,17 @@ TypeAheadList.prototype.isEmpty = function () {
  * Renders the list
  */
 TypeAheadList.prototype.draw = function () {
-    this.element.innerHTML = '';
-
     if (this.items.length === 0) {
         this.hide();
         return;
     }
 
-    for (var i = 0; i < this.items.length; i++) {
-        this.drawItem(this.items[i], this.active === i);
-    }
+    var typeAheadList = this;
+    patch(this.element, function () {
+        for (var i = 0; i < typeAheadList.items.length; i++) {
+            typeAheadList.drawItem(typeAheadList.items[i], typeAheadList.active === i, i);
+        }
+    });
 
     if (this.typeAhead.scrollable) {
         this.scroll();
@@ -302,17 +315,13 @@ TypeAheadList.prototype.draw = function () {
  * @param {string|Object} item
  * @param {Boolean} active
  */
-TypeAheadList.prototype.drawItem = function (item, active) {
-    var li = document.createElement('li'),
-        a = document.createElement('a');
-
-    if (active) {
-        li.className += ' active';
-    }
-
-    a.innerHTML = this.typeAhead.highlight(item);
-    li.appendChild(a);
-    this.element.appendChild(li);
+TypeAheadList.prototype.drawItem = function (item, active, index) {
+    var className = active ? ['class', 'active'] : null;
+    var li = elementOpen.apply(null, ['li', index, null].concat(className));
+    elementOpen('a');
+    this.typeAhead.highlight(item);
+    elementClose('a');
+    elementClose('li');
 
     var typeAheadList = this;
     li.addEventListener('mousedown', function () {
