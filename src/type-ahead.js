@@ -34,6 +34,8 @@ var TypeAhead = function (element, candidates, opts) {
 
     typeAhead.scrollable = opts.hasOwnProperty('scrollable') ? opts.scrollable : false;
 
+    typeAhead.callback = opts.hasOwnProperty('callback') ? opts.callback : function(){};
+
     typeAhead.query = '';
 
     typeAhead.selected = null;
@@ -176,6 +178,8 @@ TypeAhead.prototype.value = function (value) {
     } else {
         this.element.fireEvent('onchange');
     }
+
+    this.callback(value);
 };
 
 /**
