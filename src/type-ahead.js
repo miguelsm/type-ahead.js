@@ -156,8 +156,17 @@ TypeAhead.prototype.filter = function (value) {
  * @return {Boolean}
  */
 TypeAhead.prototype.match = function (candidate) {
-    if(this.fulltext){
-        return candidate.indexOf(this.query) > -1;
+    var matches, keywords;
+    if (this.fulltext){
+        matches = 0;
+        keywords = this.query.split(/\s+/);
+        for (var i = 0; i < keywords.length; i++) {
+          if (candidate.indexOf(keywords[i]) === -1) {
+            break;
+          }
+          matches++;
+        }
+        return matches === keywords.length;
     }
     return candidate.indexOf(this.query) === 0;
 };
@@ -212,20 +221,34 @@ TypeAhead.prototype.getItemValue = function (item) {
  * Highlights the item
  *
  * @param {string} item
- * @return {string}
  */
 TypeAhead.prototype.highlight = function (item) {
-    var regex = new RegExp('(' + this.query + ')', 'gi');
-    var split = this.getItemValue(item).split(regex);
-    for (var i = 0, l = split.length; i < l; i++) {
-        if (i % 2 === 1) {
-            elementOpen('strong');
-            text(split[i]);
-            elementClose('strong');
-        } else {
-            text(split[i]);
-        }
+  var str = this.getItemValue(item);
+  if (!item || !this.query || this.query.length < 3) {
+    text(str);
+    return;
+  }
+  var keywords = this.query.split(/\s+/)
+    // filter out duplicates
+    .filter(function (value, index, self) {
+      return self.indexOf(value) === index;
+    })
+    .filter(function (kw) {
+      return kw.length > 1;
+    })
+    .map(function (s) {
+      return s.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
+    });
+  str = str.split(new RegExp('(' + keywords.join('|') + ')', 'gi'));
+  for (var i = 0, l = str.length; i < l; i++) {
+    if (i % 2 === 1) {
+      elementOpen('strong');
+      text(str[i]);
+      elementClose('strong');
+    } else {
+      text(str[i]);
     }
+  }
 };
 
 /**
