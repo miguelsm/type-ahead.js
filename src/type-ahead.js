@@ -350,9 +350,9 @@ TypeAheadList.prototype.drawItem = function (item, active, index) {
     elementClose('li');
 
     var typeAheadList = this;
-    li.addEventListener('mousedown', function () {
+    li.onmousedown = function () {
         typeAheadList.handleMouseDown.call(typeAheadList, item);
-    });
+    };
 };
 
 /**
