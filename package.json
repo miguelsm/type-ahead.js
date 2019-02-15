@@ -52,6 +52,6 @@
     "uglify-js": "^2.4.24"
   },
   "dependencies": {
-    "incremental-dom": "0.4.1"
+    "incremental-dom": "0.6.0"
   }
 }
